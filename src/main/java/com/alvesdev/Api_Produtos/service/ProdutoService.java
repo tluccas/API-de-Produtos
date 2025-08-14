@@ -1,5 +1,6 @@
 package com.alvesdev.Api_Produtos.service;
 
+import com.alvesdev.Api_Produtos.exceptions.RecursoNaoEncontradoException;
 import com.alvesdev.Api_Produtos.model.Produto;
 import com.alvesdev.Api_Produtos.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,9 @@ public class ProdutoService {
         return produtoRepository.findAll();
     }
 
-    public Optional<Produto> buscarPorId(Long id) {
-       return produtoRepository.findById(id);
+    public Produto buscarPorId(Long id) {
+       return produtoRepository.findById(id)
+               .orElseThrow(() -> new RecursoNaoEncontradoException("Produto com ID: "+ id + " não encontrado!"));
     }
 
     public Produto salvarProduto(Produto produto) {
@@ -28,6 +30,11 @@ public class ProdutoService {
     }
 
     public void excluirProduto(Long id) {
+
+        if (!produtoRepository.existsById(id)) {
+            throw new RecursoNaoEncontradoException("Produto com ID: "+ id + "não encontrado!");
+        }
+        
         produtoRepository.deleteById(id);
     }
 }
